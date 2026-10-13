@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Favourites - Movie Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="theme.js"></script>
+</head>
+<body class="bg-ink font-sans text-cream antialiased">
+<header id="nav"></header>
+<main class="mx-auto max-w-7xl px-4 pt-10">
+  <div class="flex flex-wrap items-end justify-between gap-3"><h1 class="font-display text-4xl">Your favourites <span id="count" class="ml-2 text-lg text-cream/60"></span></h1>
+    <button id="clear" class="hidden rounded-full border border-line px-5 py-2 hover:border-coral">Remove all</button></div>
+  <div id="grid" class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"></div>
+</main>
+<div id="modal"></div>
+<footer id="foot"></footer>
+<script src="app.js"></script>
+<script>
+shell('favourites.html');
+function draw() {
+  const list = Fav.all().map(f => ({ id: f.id, title: f.title, poster_path: f.poster }));
+  $('#count').textContent = list.length ? `${list.length} saved` : '';
+  $('#clear').classList.toggle('hidden', !list.length);
+  $('#grid').innerHTML = list.length ? list.map(m => card(m)).join('')
+    : '<div class="col-span-full py-10"><p class="text-lg">Nothing saved yet.</p><p class="mt-1 text-cream/70">Tap the heart on any movie to keep it here.</p><a href="search.html" class="mt-5 inline-block rounded-full bg-gold px-6 py-3 font-semibold text-ink hover:brightness-110">Find a movie</a></div>';
+}
+window.onFavChange = draw;
+$('#clear').onclick = () => { if (confirm('Remove all favourites?')) { localStorage.setItem('favourites', '[]'); draw(); updateCount(); } };
+draw();
+</script>
+</body>
+</html>

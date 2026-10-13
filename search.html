@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search - Movie Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="theme.js"></script>
+</head>
+<body class="bg-ink font-sans text-cream antialiased">
+<header id="nav"></header>
+<main class="mx-auto max-w-7xl px-4 pt-10">
+  <h1 class="font-display text-4xl">Find a movie</h1>
+  <form id="form" role="search" class="mt-5 flex gap-3"><label for="q" class="sr-only">Movie title</label>
+    <input id="q" type="search" autocomplete="off" placeholder="Search by title" class="w-full max-w-xl rounded-full border border-line bg-panel px-5 py-3 placeholder:text-cream/50 focus:border-gold focus:outline-none">
+    <button class="rounded-full bg-gold px-6 py-3 font-semibold text-ink hover:brightness-110">Search</button></form>
+  <div id="chips" class="no-scrollbar mt-5 flex gap-2 overflow-x-auto pb-2" aria-label="Browse by genre"></div>
+  <h2 id="heading" class="mb-4 mt-8 font-display text-2xl"></h2>
+  <div id="grid" class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"></div>
+  <div class="mt-8 text-center"><button id="more" class="hidden rounded-full border border-line px-6 py-3 hover:border-gold">Show more movies</button></div>
+</main>
+<div id="modal"></div>
+<footer id="foot"></footer>
+<script src="app.js"></script>
+<script>
+shell('search.html');
+let q = '', genre = '', genreName = '', page = 1, total = 1, timer;
+const grid = $('#grid');
+function markChips() { document.querySelectorAll('[data-genre]').forEach(c => { const on = !q && c.dataset.genre === genre; c.setAttribute('aria-pressed', on); c.className = `shrink-0 rounded-full border px-4 py-1.5 ${on ? 'border-gold bg-gold text-ink' : 'border-line hover:border-gold'}`; }); }
+async function run(reset = true) {
+  if (reset) { page = 1; grid.innerHTML = skeleton(12); $('#more').classList.add('hidden'); }
+  $('#heading').textContent = q ? `Results for “${q}”` : (genreName ? `${genreName} movies` : 'Popular movies');
+  markChips();
+  try {
+    const d = q ? await api('search/movie', { query: q, page, include_adult: 'false' }) : await api('discover/movie', { with_genres: genre, sort_by: 'popularity.desc', page });
+    const items = d.results.filter(m => m.poster_path);
+    if (reset) grid.innerHTML = '';
+    if (reset && !items.length) grid.innerHTML = `<p class="col-span-full py-6 text-cream/70">No movies matched “${esc(q)}”. Try a different title or pick a genre.</p>`;
+    grid.insertAdjacentHTML('beforeend', items.map(m => card(m)).join(''));
+    $('#more').classList.toggle('hidden', page >= d.total_pages);
+  } catch { grid.innerHTML = `<div class="col-span-full">${errorBox}</div>`; }
+}
+$('#form').onsubmit = e => { e.preventDefault(); clearTimeout(timer); q = $('#q').value.trim(); run(); };
+$('#q').oninput = e => { clearTimeout(timer); timer = setTimeout(() => { q = e.target.value.trim(); run(); }, 450); };
+$('#more').onclick = () => { page++; run(false); };
+$('#chips').onclick = e => { const c = e.target.closest('[data-genre]'); if (!c) return; genre = c.dataset.genre; genreName = genre ? c.textContent : ''; q = ''; $('#q').value = ''; run(); };
+api('genre/movie/list').then(d => { $('#chips').innerHTML = [{ id: '', name: 'Popular' }, ...d.genres].map(g => `<button data-genre="${g.id}">${esc(g.name)}</button>`).join(''); markChips(); }).catch(() => {});
+run();
+</script>
+</body>
+</html>
