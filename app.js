@@ -125,3 +125,28 @@ document.addEventListener('click', e => {
   if (e.target.matches('[data-close]') || e.target.closest('[data-closebtn]')) closeModal();
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* Scroll arrows for horizontally scrolling rows (shown on wider screens; touch users swipe) */
+function addArrows(el, top = 'top-1/3') {
+  const wrap = document.createElement('div');
+  wrap.className = 'relative';
+  el.parentNode.insertBefore(wrap, el);
+  wrap.appendChild(el);
+  const make = (dir, label, side) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('aria-label', label); b.textContent = dir < 0 ? '\u2039' : '\u203A';
+    b.className = `absolute ${side} ${top} z-10 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-ink/90 text-2xl leading-none shadow-lg hover:border-gold hover:text-gold`;
+    b.onclick = () => el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
+    wrap.appendChild(b);
+    return b;
+  };
+  const left = make(-1, 'Scroll left', 'left-1'), right = make(1, 'Scroll right', 'right-1');
+  const update = () => {
+    left.classList.toggle('md:grid', el.scrollLeft > 8);
+    right.classList.toggle('md:grid', el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
+  };
+  el.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  new MutationObserver(update).observe(el, { childList: true });
+  update();
+}

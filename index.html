@@ -22,6 +22,7 @@
 <script src="app.js"></script>
 <script>
 shell('index.html');
+['trending', 'nowPlaying', 'topRated'].forEach(id => addArrows(document.getElementById(id)));
 async function fillRow(id, path) {
   const el = document.getElementById(id);
   el.innerHTML = skeleton(8, 'w-40 shrink-0');

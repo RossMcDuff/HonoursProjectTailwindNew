@@ -26,6 +26,7 @@
 <script src="app.js"></script>
 <script>
 shell('search.html');
+addArrows($('#chips'), 'top-1/2');
 let q = '', genre = '', genreName = '', page = 1, total = 1, timer;
 const grid = $('#grid');
 function markChips() { document.querySelectorAll('[data-genre]').forEach(c => { const on = !q && c.dataset.genre === genre; c.setAttribute('aria-pressed', on); c.className = `shrink-0 rounded-full border px-4 py-1.5 ${on ? 'border-gold bg-gold text-ink' : 'border-line hover:border-gold'}`; }); }
