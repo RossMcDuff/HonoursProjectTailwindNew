@@ -75,7 +75,7 @@ function card(m, row) {
     : `<div class="grid aspect-[2/3] place-items-center bg-panel p-3 text-center text-cream/60">${esc(m.title)}</div>`;
   return `<article class="relative ${row ? 'w-40 shrink-0 snap-start sm:w-44' : ''}">
     <button data-open="${m.id}" class="block w-full overflow-hidden rounded-lg border border-line bg-panel text-left transition hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold">${img}
-      <span class="block p-3"><span class="line-clamp-2 block text-sm font-medium leading-snug">${esc(m.title)}</span><span class="mt-1 block text-sm text-cream/60">${year}</span></span></button>
+      <span class="block p-3"><span class="line-clamp-2 min-h-[2.75em] text-sm font-medium leading-snug">${esc(m.title)}</span><span class="mt-1 block text-sm text-cream/60">${year || '&nbsp;'}</span></span></button>
     ${m.vote_average ? `<span class="absolute left-2 top-2 rounded bg-ink/85 px-2 py-0.5 text-xs font-semibold text-gold">${m.vote_average.toFixed(1)}</span>` : ''}
     <button data-fav="${m.id}" aria-pressed="${Fav.has(m.id)}" aria-label="Save ${esc(m.title)} to favourites" class="absolute right-2 top-2 rounded-full bg-ink/85 p-1.5 text-cream/80 hover:text-coral">${HEART}</button></article>`;
 }
